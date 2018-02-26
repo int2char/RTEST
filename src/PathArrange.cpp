@@ -51,7 +51,8 @@ bool cmpv(RouteMark a1, RouteMark a2){
 		return true;
 	return false;
 }
-float  rearrange(Graph* G, float *capacity, float *lambda, int*pre, float*d, float *pd, int *te, int *st, int num, int mum, double& bestadd, int&stillS, int wide, int len, vector<vector<int>>&StoreRoute, vector<vector<int>>&BestRoute, int* mask, ostream& Out, vector<RouteMark>& bestroutes, double totalflow)
+
+float  rearrange(Graph* G, float *capacity, float *lambda, int*pre, float*d, float *pd, int *te, int *st, int num, int mum, double& bestadd, int&stillS, int wide, int len, vector<vector<int>>&StoreRoute, vector<vector<int>>&BestRoute,vector<set<int> >&stpair, ostream& Out, vector<RouteMark>& bestroutes, double totalflow)
 {
 	totalflow=0;
 	vector<RouteMark> Routes;
@@ -63,14 +64,14 @@ float  rearrange(Graph* G, float *capacity, float *lambda, int*pre, float*d, flo
 	for (int i = 0; i < num; i++)
 	{
 		int n = 0;			
-		int f = pre[te[i] * wide + i*len];
+		int f = pre[te[i] * wide + st[i]*len];
 		if(st[i]==419&&te[i]==98)
 			cout<<f<<" ";
 		if (StoreRoute[i][0] < 0)
 		{
 			while (f >= 0){
 				n++;
-				f = pre[G->incL[f].tail*wide + i*len];
+				f = pre[G->incL[f].tail*wide + st[i]*len];
 				if(st[i]==419&&te[i]==98)
 							cout<<f<<" ";
 				if (n>1000)
@@ -88,7 +89,7 @@ float  rearrange(Graph* G, float *capacity, float *lambda, int*pre, float*d, flo
 	{
 		int i = Routes[ai].mark;
 		float demand = pd[i];
-		int f = pre[te[i] * wide + i*len];
+		int f = pre[te[i] * wide + st[i]*len];
 		int n = 0;
 		int flag = 0;
 		if (StoreRoute[i][0] < 0)
@@ -105,7 +106,7 @@ float  rearrange(Graph* G, float *capacity, float *lambda, int*pre, float*d, flo
 					printf("circle!!!in s:%d:\n", i);
 					//break;
 				}
-				f = pre[G->incL[f].tail*wide + i*len];
+				f = pre[G->incL[f].tail*wide + st[i]*len];
 				n++;
 			}
 			//new add bounaries here.
@@ -117,13 +118,13 @@ float  rearrange(Graph* G, float *capacity, float *lambda, int*pre, float*d, flo
 				StoreRoute[i].push_back(n);
 				int j = 0;
 				totalflow += demand*n;
-				int f = pre[te[i] * wide + i*len];
+				int f = pre[te[i] * wide + st[i]*len];
 				while (f >= 0)
 				{
 					j++;
 					StoreRoute[i].push_back(f);
 					capacity[f] -= demand;
-					f = pre[G->incL[f].tail*wide + i*len];
+					f = pre[G->incL[f].tail*wide + st[i]*len];
 					if (n > 10100)
 						printf("erro2\n");
 				}
@@ -240,13 +241,16 @@ float  rearrange(Graph* G, float *capacity, float *lambda, int*pre, float*d, flo
 	for (int i = 0; i < num; i++)
 	{
 		if (StoreRoute[i][0] < 0)
-			mask[maskC++] = i;
+			{maskC++  ;
+			stpair[st[i]].insert(te[i]);
+			}
 		else
 		{
 			int random = rand() % 10;
 			if (random < MU)
 			{
-				mask[maskC++] = i;
+				stpair[st[i]].insert(te[i]);
+				maskC++;
 				StoreRoute[i].clear();
 				StoreRoute[i].push_back(-1);
 			}
@@ -255,7 +259,7 @@ float  rearrange(Graph* G, float *capacity, float *lambda, int*pre, float*d, flo
 	for (int i = 0; i < stillS; i++)
 	{
 		float demand = pd[remain[i]];
-		int f = pre[te[remain[i]] * wide + remain[i] * len];
+		int f = pre[te[remain[i]] * wide + st[remain[i]] * len];
 		int max = 0;
 		int mm = -1;
 		while (f >= 0)
@@ -267,7 +271,7 @@ float  rearrange(Graph* G, float *capacity, float *lambda, int*pre, float*d, flo
 				if (r>RO)
 					lambda[f] += 1;
 			}
-			f = pre[G->incL[f].tail*wide + remain[i] * len];
+			f = pre[G->incL[f].tail*wide + st[remain[i]] * len];
 		}
 	}
 	stillS = maskC;

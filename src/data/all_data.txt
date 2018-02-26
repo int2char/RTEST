@@ -1,0 +1,1 @@
+{"type":"ER","graph_type":"1","node":"500","edge":"2942","task":"1000","capacity":"100","method":"Lag_Serial","assess":"0.537844","object":"275887.000000","inf_obj":"512950.000000","task_add_in":"857.000000","flow_add_in":"42415.000000","total_weight":"3913.000000","time":"789.105042","iter_num":"104.000000","iter_time":"7.587548"}
